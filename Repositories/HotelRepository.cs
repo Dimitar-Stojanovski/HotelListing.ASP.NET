@@ -13,6 +13,13 @@ namespace HotelListing.API.Repositories
             _context = context;
         }
 
+        public async Task<List<Hotel>> GetHotelsWithBiggerRatings(double rating)
+        {
+            var hotels = await _context.Hotels.
+                Where(a=>a.Rating>rating).ToListAsync();
+            return hotels;
+        }
+
         public async Task<Hotel> IncludeHotelCountry(int id)
         {
             /*var hotel = await _context.Hotels.Include(a => a.Country)

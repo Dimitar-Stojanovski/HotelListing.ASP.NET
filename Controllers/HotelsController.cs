@@ -112,6 +112,16 @@ namespace HotelListing.API.Controllers
             return NoContent();
         }
 
+        [HttpGet("ratings/{ratings}")]
+        public async Task<ActionResult<IEnumerable<HotelDto>>> GetRatings(double ratings)
+        {
+            var hotels = await _hotelRepository.GetHotelsWithBiggerRatings(ratings);
+            var records = _mapper.Map<List<HotelDto>>(hotels);
+            return records;
+        }
+
+
+
         private async Task <bool> HotelExists(int id)
         {
             return await _hotelRepository.Exist(id);
