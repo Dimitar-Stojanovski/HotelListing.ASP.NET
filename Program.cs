@@ -1,6 +1,9 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using HotelListing.API.Configurations;
 using HotelListing.API.Contracts;
 using HotelListing.API.Data;
+using HotelListing.API.DTOs.Users;
 using HotelListing.API.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +26,11 @@ builder.Services.AddIdentityCore<ApiUser>()
 /*Adding Identity by taking EnitiyFrameworkIdentity Package, we set ApiUsers to have props that we want to have as an entity
 and we are setting HotelListingDbContext to store the tables for the Identity*/
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssemblyContaining<Program>();
+    
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,6 +40,9 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));//adding auto mapper depend
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ICountiesRepository, CountryRepository>();
 builder.Services.AddScoped<IHotelRepository, HotelRepository>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
+
+
 
 var app = builder.Build();
 
