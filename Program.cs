@@ -24,7 +24,9 @@ builder.Services.AddDbContext<HotelListingDbContext>(options => {
 
 builder.Services.AddIdentityCore<ApiUser>()
                 .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<HotelListingDbContext>();
+                .AddTokenProvider<DataProtectorTokenProvider<ApiUser>>("HotelListingApi")
+                .AddEntityFrameworkStores<HotelListingDbContext>()
+                .AddDefaultTokenProviders();
 
 /*Adding Identity by taking EnitiyFrameworkIdentity Package, we set ApiUsers to have props that we want to have as an entity
 and we are setting HotelListingDbContext to store the tables for the Identity*/
