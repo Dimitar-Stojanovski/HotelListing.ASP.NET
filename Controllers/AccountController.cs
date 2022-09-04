@@ -11,10 +11,12 @@ namespace HotelListing.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthManager authManager;
+        private readonly ILogger<AccountController> _loger;
 
-        public AccountController(IAuthManager authManager)
+        public AccountController(IAuthManager authManager, ILogger<AccountController> _loger)
         {
             this.authManager = authManager;
+            this._loger = _loger;
         }
 
         //api/Account/register
@@ -25,17 +27,30 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register([FromBody]ApiUserDto apiUserDto)
         {
-            var errors = await authManager.Register(apiUserDto);
-            if (errors.Any())
+            _loger.LogInformation($"Registration attempt for {apiUserDto.Email}");
+
+            try
             {
-                foreach (var error in errors)
+                var errors = await authManager.Register(apiUserDto);
+                if (errors.Any())
                 {
-                    ModelState.AddModelError(error.Code, error.Description);
+                    foreach (var error in errors)
+                    {
+                        ModelState.AddModelError(error.Code, error.Description);
+                    }
+                    return BadRequest(ModelState);
                 }
-                return BadRequest(ModelState);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                _loger.LogError(ex, $"Something went wrong in the {nameof(Register)} -User Registration attempt  for {apiUserDto.Email}");
+                return Problem($"Something went wrong in the {nameof(Register)}. Please Contact support.", statusCode:500);
             }
 
-            return Ok();
+          
         }
 
         [HttpPost]
@@ -45,10 +60,24 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult>LoginUser([FromBody]LoginDto loginDto)
         {
-            var authResponse = await authManager.Login(loginDto);
-            if (authResponse==null)
-                return Unauthorized();
-            return Ok(authResponse);
+            _loger.LogInformation($"Login attempt for {loginDto.Email}");
+            try
+            {
+                var authResponse = await authManager.Login(loginDto);
+                if (authResponse == null)
+                    return Unauthorized();
+                return Ok(authResponse);
+            }
+            catch (Exception ex)
+            {
+
+                _loger.LogWarning(ex, $"User is constantly receiving warnings in {nameof(LoginUser)}, User {loginDto.Email}");
+                return Problem($"User {nameof(LoginUser)} constantly returns", statusCode: 400);
+
+                _loger.LogError(ex, $"The service carshes in {nameof(LoginUser)} for user {loginDto.Email}");
+                return Problem($"The user {nameof(LoginUser)} receives status code", statusCode: 500);
+                
+            }
         }
 
         [HttpPost]
