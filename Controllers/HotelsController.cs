@@ -10,6 +10,7 @@ using HotelListing.API.Repositories;
 using AutoMapper;
 using HotelListing.API.DTOs.Hotels;
 using HotelListing.API.Contracts;
+using HotelListing.API.Exceptions;
 
 namespace HotelListing.API.Controllers
 {
@@ -44,7 +45,7 @@ namespace HotelListing.API.Controllers
 
             if (hotel == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetHotel), id);
             }
 
             return record;
@@ -61,7 +62,7 @@ namespace HotelListing.API.Controllers
 
             if (hotel == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(PutHotel), id);
             }
 
             _mapper.Map(_updateHotel, hotel);
@@ -74,7 +75,7 @@ namespace HotelListing.API.Controllers
             {
                 if (!await HotelExists(id))
                 {
-                    return NotFound();
+                    throw new NotFoundException(nameof(PutHotel), id);
                 }
                 else
                 {
@@ -104,7 +105,7 @@ namespace HotelListing.API.Controllers
             var hotel = await _hotelRepository.GetAsync(id);
             if (hotel == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(DeleteHotel), id);
             }
 
            await _hotelRepository.DeleteAsync(id);
