@@ -9,6 +9,7 @@ using HotelListing.API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -33,11 +34,7 @@ builder.Services.AddIdentityCore<ApiUser>()
 /*Adding Identity by taking EnitiyFrameworkIdentity Package, we set ApiUsers to have props that we want to have as an entity
 and we are setting HotelListingDbContext to store the tables for the Identity*/
 
-builder.Services.AddControllers().AddFluentValidation(fv =>
-{
-    fv.RegisterValidatorsFromAssemblyContaining<Program>();
-    
-});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -89,7 +86,14 @@ builder.Services.AddAuthentication(options =>
 });
 
 
+builder.Services.AddControllers().AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssemblyContaining<Program>();
 
+}).AddOData(options =>
+{
+    options.Select().Filter().OrderBy();
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
